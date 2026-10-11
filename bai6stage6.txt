@@ -1,0 +1,92 @@
+
+1. Phân tích luồng IPO
+
+Input:
+- Thư mục Home (~) của người dùng.
+- File mẫu template.ps1 trong thư mục Public.
+- Các yêu cầu tạo thư mục, tạo file .env và sao chép file.
+
+Process:
+- Tạo thư mục smart-farm gồm 3 thư mục con là bin, config và data.
+- Tạo file .env trong thư mục config.
+- Sao chép template.ps1 từ Public vào bin và đổi tên thành pump_control.ps1.
+- Liệt kê thư mục để kiểm tra kết quả.
+- Nếu bị lỗi quyền truy cập thì mở PowerShell bằng quyền Administrator và thực hiện lại lệnh cần thiết.
+
+Output:
+- Thư mục smart-farm được tạo trong Home.
+- Có đủ 3 thư mục bin, config và data.
+- File .env nằm trong config.
+- File pump_control.ps1 nằm trong bin.
+- Kiểm tra được cấu trúc thư mục sau khi hoàn thành.
+
+2. Nhật ký các câu lệnh PowerShell
+
+Bước 1: Tạo thư mục smart-farm và 3 thư mục con bằng một dòng lệnh.
+
+New-Item -ItemType Directory -Path "$HOME\smart-farm\bin","$HOME\smart-farm\config","$HOME\smart-farm\data" -Force
+
+Lệnh này tạo các thư mục cần thiết trong Home. Tham số -Force giúp tránh báo lỗi khi thư mục đã tồn tại.
+
+Bước 2: Tạo file .env trong config.
+
+
+New-Item -ItemType File -Path "$HOME\smart-farm\config\.env" -Force
+
+
+File .env thường dùng để lưu các biến môi trường, chẳng hạn thông tin cấu hình của cảm biến.
+
+Get-ChildItem thông thường không hiển thị file .env vì trong PowerShell, các mục có thuộc tính Hidden sẽ bị ẩn khỏi kết quả mặc định. Tuy nhiên, tên bắt đầu bằng dấu chấm không tự làm file bị ẩn như trên Linux. Có thể dùng lệnh sau để xem các file ẩn:
+
+
+Get-ChildItem "$HOME\smart-farm\config" -Force
+
+
+Nếu muốn đặt thuộc tính ẩn cho file .env, dùng:
+
+
+(Get-Item "$HOME\smart-farm\config\.env").Attributes = "Hidden"
+
+
+Lưu ý: Không nên đưa mật khẩu thật lên GitHub. File .env chỉ là nơi lưu cấu hình, không tự động mã hóa hay bảo vệ mật khẩu.
+
+Bước 3: Sao chép file và đổi tên trong một lệnh.
+
+Giả sử thư mục Public nằm ngay trong Home:
+
+
+Copy-Item "$HOME\Public\template.ps1" -Destination "$HOME\smart-farm\bin\pump_control.ps1"
+
+
+Lệnh Copy-Item vừa sao chép file sang thư mục bin vừa đặt tên mới là pump_control.ps1.
+
+Nếu Public nằm ở vị trí khác, cần sửa lại đường dẫn nguồn cho đúng.
+
+Bước 4: Kiểm tra cấu trúc thư mục.
+
+
+Get-ChildItem "$HOME\smart-farm" -Recurse -Force
+
+
+Lệnh này liệt kê các thư mục và file bên trong smart-farm, bao gồm cả file ẩn.
+
+3. Cách xử lý lỗi quyền truy cập
+
+Nếu PowerShell báo lỗi "Access to the path is denied", em sẽ kiểm tra lại đường dẫn và quyền truy cập của tài khoản trước.
+
+Nếu cần quyền quản trị, em đóng cửa sổ PowerShell hiện tại, tìm PowerShell trong Start Menu, nhấn chuột phải và chọn Run as administrator. Sau đó chạy lại lệnh cần thiết.
+
+Có thể kiểm tra quyền truy cập trước khi thực hiện. Không nên dùng quyền Administrator nếu không cần thiết.
+
+4. Kết quả mong đợi
+
+smart-farm
+|-- bin
+|   |-- pump_control.ps1
+|-- config
+|   |-- .env
+|-- data
+
+5. Kết luận
+
+=>Qua bài này, em sử dụng được các lệnh PowerShell để tạo thư mục, tạo file, sao chép và đổi tên file. Lệnh Get-ChildItem giúp kiểm tra lại cấu trúc thư mục, còn tham số -Force giúp hiển thị cả file ẩn. Khi gặp lỗi quyền truy cập, cần kiểm tra nguyên nhân rồi mới chạy PowerShell bằng quyền Administrator.
